@@ -7,10 +7,20 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $validator = Join-Path $root 'scripts/validate_project.ps1'
 $powershell = (Get-Process -Id $PID).Path
-$temporaryRoot = Join-Path $env:LOCALAPPDATA ('Temp/opencode/validator-tests-' + [guid]::NewGuid())
-$null = New-Item -ItemType Directory -Path $temporaryRoot
 $script:failures = 0
 $script:checks = 0
+
+# A Windows-only temp root must not prevent this suite running on other platforms.
+$previousLocalAppData = $env:LOCALAPPDATA
+try {
+    $env:LOCALAPPDATA = $null
+    $script:checks++
+    $temporaryRoot = Join-Path ([IO.Path]::GetTempPath()) ('validator-tests-' + [guid]::NewGuid())
+    $null = New-Item -ItemType Directory -Path $temporaryRoot
+    Write-Host 'PASS: temporary fixtures can be created with LOCALAPPDATA unset'
+} finally {
+    $env:LOCALAPPDATA = $previousLocalAppData
+}
 
 function Check-Validation {
     param([string]$Name, [string[]]$Arguments, [bool]$ShouldSucceed, [string]$Diagnostic, [int]$ExpectedExitCode = -1)
