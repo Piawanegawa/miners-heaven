@@ -123,8 +123,8 @@ Archive a completed change in the experimental workflow.
 5. **Perform the archive**
 
    Create an `archive` directory under `planningHome.changesDir` if it doesn't exist:
-   ```bash
-   mkdir -p "<planningHome.changesDir>/archive"
+   ```powershell
+   New-Item -ItemType Directory -Force -Path '<planningHome.changesDir>/archive' | Out-Null
    ```
 
    Generate the target name: use the change name as-is when it already starts with a `YYYY-MM-DD-` prefix; otherwise prepend the current date as `YYYY-MM-DD-<change-name>`. Never stack a second date (same rule as `openspec archive`).
@@ -133,8 +133,8 @@ Archive a completed change in the experimental workflow.
    - If yes: Fail with error, suggest renaming existing archive or using different date
    - If no: Move `changeRoot` to the archive directory
 
-   ```bash
-   mv "<changeRoot>" "<planningHome.changesDir>/archive/<target-name>"
+   ```powershell
+   Move-Item -LiteralPath '<changeRoot>' -Destination '<planningHome.changesDir>/archive/<target-name>'
    ```
 
 6. **Display summary**

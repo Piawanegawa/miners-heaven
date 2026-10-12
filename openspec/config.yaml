@@ -1,5 +1,4 @@
-schema: spec-driven
-
+schema: superpowers-bridge-opencode
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
@@ -30,3 +29,4 @@ schema: spec-driven
 #     archive:
 #       guidance:
 #         - Summarize the archive outcome before finishing
+
