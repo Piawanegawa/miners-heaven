@@ -105,7 +105,7 @@ Each runner exits `0` on success and `1` on a failed check:
 - Playable scene: **27 assertions**, exercising real input/physics, tiled
   ground, player/camera setup, movement, stopping/reversal, walls, sliding,
   obstacle/corner collision, and actual camera tracking.
-- Validator: **10 checks** (plus a Windows GUI-companion check when available),
+- Validator: **11 checks** (**12** when the Windows GUI-companion check is available),
   running the wrapper in fresh PowerShell processes against unavailable
   explicit/environment executables, missing/malformed
   projects, unregistered main scene, broken scene/script, and the real project
