@@ -1,0 +1,13 @@
+# Godot editor/import cache and generated exports
+.godot/
+.import/
+export.cfg
+export_presets.cfg
+*.translation
+
+# Superpowers plan workspaces
+.superpowers/sdd/
+
+# CodeGraph local index
+.codegraph/*
+!.codegraph/.gitignore
