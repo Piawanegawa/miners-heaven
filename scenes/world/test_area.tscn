@@ -1,0 +1,104 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://scripts/presentation/test_area.gd" id="2_area"]
+
+[sub_resource type="Gradient" id="Gradient_ground"]
+colors = PackedColorArray(0.22, 0.32, 0.26, 1, 0.27, 0.38, 0.3, 1)
+
+[sub_resource type="GradientTexture2D" id="Texture_ground"]
+gradient = SubResource("Gradient_ground")
+width = 32
+height = 32
+fill_to = Vector2(1, 1)
+
+[sub_resource type="TileSetAtlasSource" id="Atlas_ground"]
+texture = SubResource("Texture_ground")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="Tiles_ground"]
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("Atlas_ground")
+
+[sub_resource type="RectangleShape2D" id="Rectangle_horizontal"]
+size = Vector2(576, 32)
+
+[sub_resource type="RectangleShape2D" id="Rectangle_vertical"]
+size = Vector2(32, 384)
+
+[sub_resource type="RectangleShape2D" id="Rectangle_obstacle"]
+size = Vector2(64, 64)
+
+[node name="TestArea" type="Node2D"]
+script = ExtResource("2_area")
+
+[node name="Ground" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = SubResource("Tiles_ground")
+collision_enabled = false
+
+[node name="Walls" type="Node2D" parent="."]
+
+[node name="Top" type="StaticBody2D" parent="Walls"]
+position = Vector2(288, 16)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Top"]
+shape = SubResource("Rectangle_horizontal")
+
+[node name="Placeholder" type="Polygon2D" parent="Walls/Top"]
+color = Color(0.38, 0.42, 0.48, 1)
+polygon = PackedVector2Array(-288, -16, 288, -16, 288, 16, -288, 16)
+
+[node name="Bottom" type="StaticBody2D" parent="Walls"]
+position = Vector2(288, 432)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Bottom"]
+shape = SubResource("Rectangle_horizontal")
+
+[node name="Placeholder" type="Polygon2D" parent="Walls/Bottom"]
+color = Color(0.38, 0.42, 0.48, 1)
+polygon = PackedVector2Array(-288, -16, 288, -16, 288, 16, -288, 16)
+
+[node name="Left" type="StaticBody2D" parent="Walls"]
+position = Vector2(16, 224)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Left"]
+shape = SubResource("Rectangle_vertical")
+
+[node name="Placeholder" type="Polygon2D" parent="Walls/Left"]
+color = Color(0.38, 0.42, 0.48, 1)
+polygon = PackedVector2Array(-16, -192, 16, -192, 16, 192, -16, 192)
+
+[node name="Right" type="StaticBody2D" parent="Walls"]
+position = Vector2(560, 224)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Walls/Right"]
+shape = SubResource("Rectangle_vertical")
+
+[node name="Placeholder" type="Polygon2D" parent="Walls/Right"]
+color = Color(0.38, 0.42, 0.48, 1)
+polygon = PackedVector2Array(-16, -192, 16, -192, 16, 192, -16, 192)
+
+[node name="Obstacle" type="StaticBody2D" parent="."]
+position = Vector2(288, 224)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Obstacle"]
+shape = SubResource("Rectangle_obstacle")
+
+[node name="Placeholder" type="Polygon2D" parent="Obstacle"]
+color = Color(0.5, 0.34, 0.25, 1)
+polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(96, 96)
