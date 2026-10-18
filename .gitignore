@@ -8,6 +8,9 @@ build/
 # Superpowers plan workspaces
 .superpowers/sdd/
 
+# Local OpenSpec worktrees
+.worktrees/
+
 # CodeGraph local index
 .codegraph/*
 !.codegraph/.gitignore

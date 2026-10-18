@@ -1,13 +1,16 @@
 ---
 name: opsx-ff
-description: Fast-forward an OpenSpec change into a new worktree and generate its planning artifacts using this repository's OPSX procedure. Use for explicit fast-forward requests.
+description: Create an OpenSpec change in a new isolated Git worktree and prepare its planning artifacts for implementation.
 ---
 
-# OPSX Fast-Forward
+# OpenSpec fast-forward workflow
 
-Codex wrapper for OpenCode's `/opsx-ff`. Invoke in Codex as `$opsx-ff <name-or-description>`.
+Use when the user explicitly starts a new change with `$opsx-ff <name-or-description>`.
 
-1. Read `.opencode/commands/opsx-ff.md` completely and follow it as the source of truth.
-2. Treat any text after `$opsx-ff` as the command's name or change description. Preserve its main-worktree checks, worktree isolation, artifact generation, and commit boundaries.
-3. Do not overwrite, reset, stash, or broadly stage existing user changes. Do not merge or push unless the command and the user's selected option authorize it.
-4. Translate OpenCode-only tool calls to tools available in this Codex session. Never claim an unavailable operation succeeded; report exact limitations and use only a documented, authorized fallback.
+1. Derive a kebab-case change name from the request if none was supplied. Check that the main worktree is clean and that no branch or worktree already uses the name. If the main worktree has changes, leave them untouched and explain that the user should commit or otherwise resolve them first.
+2. Create a branch named `codex/<change-name>` in `.worktrees/<change-name>` from the current `main` HEAD using `git worktree add -b`. Do not switch or commit in the main worktree.
+3. In the new worktree, confirm `openspec list --json` sees this project and create a new change with schema `spec-driven` using `openspec new change <change-name> --schema spec-driven`.
+4. Read `openspec status --change <change-name> --json`. For each ready artifact in dependency order, fetch `openspec instructions <artifact-id> --change <change-name> --json`, read all listed dependencies/context, and write the artifacts using the returned instructions. Use the repository's generated OpenSpec skills for their operation guidance. For tooling-only changes with no requirement-level behavior changes, set `skip_specs: true` in that change's `.openspec.yaml` and confirm status reports specs as skipped.
+5. Recheck status and validate the change. Do not mark implementation tasks complete during planning. Leave the branch and worktree available for `$openspec-apply-change`.
+
+Report the change name, branch, worktree path, artifacts completed, and the next Codex skill to invoke. Do not merge, push, or remove the worktree.

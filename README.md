@@ -146,6 +146,45 @@ There is no rendering/display requirement or third-party test framework. Run
 headless validation separately using the command above as the final project
 loading check. If invoking one runner directly, inspect `$LASTEXITCODE`.
 
+## OpenSpec and Codex workflow
+
+OpenSpec planning uses the official CLI and repository-local Codex skills. It
+requires Node.js 20.19 or newer. Install the CLI and initialize its Codex skills
+from the repository root:
+
+```powershell
+npm install -g @fission-ai/openspec@latest
+openspec init --tools codex
+```
+
+The generated skills include `$openspec-propose`, `$openspec-new-change`,
+`$openspec-continue-change`, `$openspec-apply-change`, `$openspec-verify-change`,
+`$openspec-sync-specs`, `$openspec-update-change`, and
+`$openspec-archive-change`. Use `$openspec-explore` for planning-only
+exploration. This repository also provides `$opsx-ff` and `$opsx-finish` for
+its isolated worktree lifecycle, plus `$opsx-apply` as a short alias for
+`$openspec-apply-change`. The project default schema is `spec-driven`;
+individual changes can declare a different schema in `.openspec.yaml`.
+During apply, changes to observable gameplay behavior are routed through the
+repository test-first skill and Superpowers' `$test-driven-development` skill.
+Docs and configuration-only tasks skip that cycle.
+
+Check the CLI and project artifacts with:
+
+```powershell
+openspec --version
+openspec list --json
+openspec validate --all --json
+```
+
+Superpowers and OpenSpec are separate. The Superpowers skills such as
+`$brainstorming`, `$writing-plans`, `$test-driven-development`, and
+`$subagent-driven-development` are installed at the Codex user level, so they
+are not copied into this repository. If those skills are not available in a
+Codex installation, install **Superpowers** by **obra** from the Codex Plugins
+marketplace. OpenSpec remains usable through its generated skills without
+Superpowers; the repository's Godot-specific skills are also separate.
+
 ## Structure and scope
 
 - `project.godot`: Godot 4 configuration, main scene, 640x360 viewport,

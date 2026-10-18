@@ -1,4 +1,10 @@
-schema: superpowers-bridge-opencode
+schema: spec-driven
+
+operations:
+  apply:
+    guidance:
+      - For tasks that change observable gameplay behavior, read the repository's `miners-heaven-test-first` skill and apply the user-level Superpowers `test-driven-development` skill before editing behavior code. Follow the task's verification requirements and the user's testing instructions.
+      - For changes limited to planning, documentation, or configuration with no runtime behavior change, skip the test-first cycle.
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.

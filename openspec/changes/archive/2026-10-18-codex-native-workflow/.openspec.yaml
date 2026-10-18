@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-10-18
+goal: Run OpenSpec and Superpowers as a Codex-native workflow without
+  OpenCode-bound skills or shims
+skip_specs: true
