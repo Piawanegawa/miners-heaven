@@ -43,8 +43,8 @@ relative to the project root.
 Open `project.godot` in Godot and press **F6** with the test-area scene open,
 or **F5** to run the registered main scene, `scenes/world/test_area.tscn`.
 
-- Hold **arrow keys** to move; two perpendicular arrows move diagonally.
-- Opposing arrows cancel. Releasing the arrows stops movement.
+- Hold **arrow keys** or **WASD** to move; two perpendicular movement keys move diagonally.
+- Opposing movement keys cancel. Releasing all movement keys stops movement.
 - Diagonal speed matches cardinal speed: **200 pixels/second** by default.
   Tune `movement_speed` on the player/controller to change it.
 - Walls and the central obstacle block movement; an unblocked axis permits sliding.

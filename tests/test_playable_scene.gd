@@ -46,6 +46,7 @@ func _run() -> void:
 	_expect(world.get_node_or_null("Walls/Left") is StaticBody2D, "area includes collidable boundary wall")
 	_expect(world.get_node_or_null("Obstacle") is StaticBody2D, "area includes collidable obstacle")
 	await _test_input_movement(player)
+	await _test_wasd_input_movement(player)
 	await _test_collisions(player)
 	if camera is Camera2D:
 		camera.force_update_scroll()
@@ -86,6 +87,67 @@ func _test_input_movement(player: CharacterBody2D) -> void:
 	_release_input()
 	player.movement_speed = 200.0
 	await _ticks(2)
+
+
+func _test_wasd_input_movement(player: CharacterBody2D) -> void:
+	_expect(_action_has_key("ui_up", KEY_W), "W is mapped to up")
+	_expect(_action_has_key("ui_left", KEY_A), "A is mapped to left")
+	_expect(_action_has_key("ui_down", KEY_S), "S is mapped to down")
+	_expect(_action_has_key("ui_right", KEY_D), "D is mapped to right")
+	_expect(_action_has_key("ui_up", KEY_UP), "arrow up remains mapped")
+	_expect(_action_has_key("ui_left", KEY_LEFT), "arrow left remains mapped")
+	_expect(_action_has_key("ui_down", KEY_DOWN), "arrow down remains mapped")
+	_expect(_action_has_key("ui_right", KEY_RIGHT), "arrow right remains mapped")
+
+	player.position = Vector2(96, 96)
+	var start: Vector2 = player.position
+	_press_physical_key(KEY_D, true)
+	await _ticks(3)
+	_expect(Input.is_action_pressed("ui_right"), "D activates right movement")
+	_expect(player.velocity.distance_to(Vector2(200, 0)) < 0.01, "WASD cardinal movement uses configured speed")
+	_expect(player.position.x > start.x, "WASD cardinal input moves the player")
+	_press_physical_key(KEY_D, false)
+	await _ticks(2)
+
+	_press_physical_key(KEY_W, true)
+	_press_physical_key(KEY_D, true)
+	await _ticks(2)
+	_expect(player.velocity.distance_to(Vector2(141.421356, -141.421356)) < 0.01, "WASD diagonal movement is normalized")
+	_press_physical_key(KEY_W, false)
+	_press_physical_key(KEY_D, false)
+	await _ticks(2)
+
+	_press_physical_key(KEY_W, true)
+	_press_physical_key(KEY_RIGHT, true)
+	await _ticks(2)
+	_expect(player.velocity.distance_to(Vector2(141.421356, -141.421356)) < 0.01, "mixed WASD and arrow input is normalized")
+	_press_physical_key(KEY_W, false)
+	_press_physical_key(KEY_RIGHT, false)
+	await _ticks(2)
+
+	_press_physical_key(KEY_D, true)
+	_press_physical_key(KEY_LEFT, true)
+	await _ticks(2)
+	_expect(player.velocity == Vector2.ZERO, "opposing WASD and arrow inputs cancel")
+	_press_physical_key(KEY_D, false)
+	_press_physical_key(KEY_LEFT, false)
+	await _ticks(2)
+
+
+func _action_has_key(action: StringName, keycode: int) -> bool:
+	for input_event in InputMap.action_get_events(action):
+		if input_event is InputEventKey:
+			if input_event.keycode == keycode or input_event.physical_keycode == keycode:
+				return true
+	return false
+
+
+func _press_physical_key(keycode: int, pressed: bool) -> void:
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	event.physical_keycode = keycode
+	event.pressed = pressed
+	Input.parse_input_event(event)
 
 
 func _test_collisions(player: CharacterBody2D) -> void:
