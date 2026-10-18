@@ -15,6 +15,29 @@ scene presentation. No progression or content systems are included.
   **console** executable for terminal output; bare `godot` is not available on
   PATH on the implementation machine.
 
+## Windows build
+
+Install Godot 4.7.2 and its matching Windows export templates. The tracked
+`Windows Desktop` preset exports x86_64 builds without editor setup. From the
+repository root, create the default Release build with:
+
+```powershell
+pwsh -NoProfile -File ./scripts/build_windows.ps1
+```
+
+Select Debug or a different output directory with:
+
+```powershell
+pwsh -NoProfile -File ./scripts/build_windows.ps1 -Configuration Debug
+pwsh -NoProfile -File ./scripts/build_windows.ps1 -OutputDirectory dist/windows
+```
+
+The default output is `build/windows/Miners Heaven.exe` and its adjacent
+`Miners Heaven.pck`; keep both files together when running or sharing the game.
+The script discovers Godot through `-GodotPath`, `GODOT_BIN`, PATH, or the
+supported per-user WinGet installation. `-OutputDirectory` may be absolute or
+relative to the project root.
+
 ## Play and controls
 
 Open `project.godot` in Godot and press **F6** with the test-area scene open,
@@ -87,7 +110,7 @@ smoke check, not an interactive visual review or a replacement for behavior test
 ## Complete automated suite (headless)
 
 Set `$Godot` to the exact path above, your installed console executable, or
-`'godot'` if it is on PATH. Run all three checks, stopping on failure:
+`'godot'` if it is on PATH. Run all four checks, stopping on failure:
 
 ```powershell
 & $Godot --headless --path . --script res://tests/test_player_movement.gd
@@ -96,6 +119,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Movement/core tests failed' }
 if ($LASTEXITCODE -ne 0) { throw 'Playable scene tests failed' }
 pwsh -NoProfile -File ./tests/test_validate_project.ps1 -GodotPath $Godot
 if ($LASTEXITCODE -ne 0) { throw 'Validator tests failed' }
+pwsh -NoProfile -File ./tests/test_build_windows.ps1
+if ($LASTEXITCODE -ne 0) { throw 'Windows build script tests failed' }
 ```
 
 Each runner exits `0` on success and `1` on a failed check:
@@ -113,6 +138,9 @@ Each runner exits `0` on success and `1` on a failed check:
   propagation. Negative fixtures intentionally generate errors; passing output
   reports their expected nonzero exit status. Only the
   temporary fixtures created by the test are deleted.
+- Windows build script: **9 scenarios**, covering Release and Debug exports,
+  caller-independent project-root resolution, custom output directories,
+  `GODOT_BIN` and PATH discovery, Godot version failures, and export error handling.
 
 There is no rendering/display requirement or third-party test framework. Run
 headless validation separately using the command above as the final project
@@ -127,8 +155,9 @@ loading check. If invoking one runner directly, inspect `$LASTEXITCODE`.
 - `scenes/player/player.tscn`: character body, collision, placeholder, camera.
 - `scenes/world/test_area.tscn`: tiled ground, collidable walls/obstacle, player.
 - `scripts/validate_project.ps1`: executable discovery and headless validation.
+- `scripts/build_windows.ps1`: Release or Debug Windows x86_64 export.
 - `tests/`: dependency-free GDScript movement/integration runners and PowerShell
-  validator regression checks.
+  validator and build-script regression checks.
 - `openspec/`: specifications, designs, and implementation plans.
 
 Mining progression, ore tiers, upgrades, enemies, NPCs, economy, and skill

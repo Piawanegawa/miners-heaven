@@ -26,15 +26,17 @@
 
 **Files:**
 - Create: `scripts/build_windows.ps1`
+- Create: `tests/test_build_windows.ps1`
 - Reference: `scripts/validate_project.ps1`
 
 **Steps:**
-1. Define `-GodotPath`, `-Configuration` (`Release` or `Debug`, default `Release`), `-OutputDirectory` (default `build/windows`), and `-ProjectPath` (default the repository root from `$PSScriptRoot`).
-2. Reuse executable discovery order: explicit path, `GODOT_BIN`, PATH names `godot`, `godot4`, `godot_console`, then the supported per-user WinGet console executable.
-3. Validate that the executable exists and reports Godot 4; print an actionable error for missing or unsupported installations.
-4. Verify `project.godot`, resolve the output directory against the project root, and create it when missing.
-5. Invoke Godot headlessly with the `Windows Desktop` preset, selecting `--export-release` or `--export-debug` from `-Configuration`, and export to `Miners Heaven.exe` in the output directory.
-6. Propagate Godot's nonzero exit code and verify that the executable was produced; report the executable and adjacent `.pck` paths on success.
+1. Add focused PowerShell scenarios for Release/Debug selection, project-root and output paths, Godot discovery/version checks, reported export errors, and native failures; run them first to establish the missing behavior.
+2. Define `-GodotPath`, `-Configuration` (`Release` or `Debug`, default `Release`), `-OutputDirectory` (default `build/windows`), and `-ProjectPath` (default the repository root from `$PSScriptRoot`).
+3. Reuse executable discovery order: explicit path, `GODOT_BIN`, PATH names `godot`, `godot4`, `godot_console`, then the supported per-user WinGet console executable.
+4. Validate that the executable exists and reports Godot 4; print an actionable error for missing or unsupported installations.
+5. Verify `project.godot`, resolve the output directory against the project root, and create it when missing.
+6. Invoke Godot headlessly with the `Windows Desktop` preset, selecting `--export-release` or `--export-debug` from `-Configuration`, and export to `Miners Heaven.exe` in the output directory.
+7. Propagate Godot's nonzero exit code, reject Godot error output even when it returns zero, and verify that both executable and adjacent `.pck` were produced.
 
 ## Task 3: Document and verify the build
 
