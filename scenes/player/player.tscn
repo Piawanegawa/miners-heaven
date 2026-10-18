@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/presentation/player_controller.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://assets/sprites/miner_walk_frames.tres" id="2_sprite_frames"]
 
 [sub_resource type="RectangleShape2D" id="Rectangle_player"]
 size = Vector2(16, 12)
@@ -15,17 +16,11 @@ script = ExtResource("1_controller")
 position = Vector2(0, -6)
 shape = SubResource("Rectangle_player")
 
-[node name="Visual" type="Polygon2D" parent="."]
-color = Color(0.12, 0.2, 0.18, 1)
-polygon = PackedVector2Array(-3, -24, 3, -24, 6, -21, 6, -18, 4, -15, 7, -12, 8, -7, 6, 0, -6, 0, -8, -7, -7, -12, -4, -15, -6, -18, -6, -21)
-
-[node name="Face" type="Polygon2D" parent="Visual"]
-color = Color(0.94, 0.55, 0.31, 1)
-polygon = PackedVector2Array(-3, -21, 3, -21, 4, -18, 2, -16, -2, -16, -4, -18)
-
-[node name="Hat" type="Polygon2D" parent="Visual"]
-color = Color(0.18, 0.66, 0.28, 1)
-polygon = PackedVector2Array(-5, -24, 4, -24, 6, -21, 6, -19, -5, -19)
+[node name="Visual" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -16)
+sprite_frames = ExtResource("2_sprite_frames")
+animation = &"walk_down"
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(2, 2)

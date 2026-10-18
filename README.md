@@ -1,7 +1,8 @@
 # Miners Heaven
 
 A minimal Godot 4 / GDScript 2D top-down playable foundation: continuous
-eight-direction movement, a 3/4-view placeholder player, ground-level collision,
+eight-direction movement, a 3/4-view pixel-art miner with directional walking,
+ground-level collision,
 a following camera, and a small tile-based mine test area. Gameplay rules are
 separate from scene presentation. No progression or content systems are included.
 
@@ -45,17 +46,20 @@ or **F5** to run the registered main scene, `scenes/world/test_area.tscn`.
 
 - Hold **arrow keys** or **WASD** to move; two perpendicular movement keys move diagonally.
 - Opposing movement keys cancel. Releasing all movement keys stops movement.
+- The miner has up, down, and side walking cycles; the side view mirrors when moving left. Diagonal movement uses the axis with the larger component and keeps the previous facing on equal components.
+- When movement stops or a collision blocks it, the walk cycle stops on the last-facing idle pose.
 - Diagonal speed matches cardinal speed: **200 pixels/second** by default.
   Tune `movement_speed` on the player/controller to change it.
-- The player scene origin is at the feet. Its placeholder visual extends upward,
+- The player scene origin is at the feet. Its pixel-art visual extends upward,
   while its compact collision shape stays at the ground footprint.
 - Walls and the rock's ground-level footprint block movement; the player can overlap its tall artwork outside that footprint.
 - The player's child `Camera2D` follows without smoothing at **2x zoom**.
 
 The area is **18x14 tiles**, each **32x32 pixels** (576x448 overall), with
 32-pixel boundary walls, a tall rock with a **64x16** ground footprint, and a
-non-colliding ore visual. Graphics are embedded/generated placeholder colors
-and shapes, with no external art imports.
+non-colliding ore visual. The miner uses a transparent **96x96** pixel-art
+sprite sheet with **24x32** frames; the ground and tall props retain generated
+placeholder colors and shapes.
 
 ## Movement core
 
@@ -194,7 +198,8 @@ Superpowers; the repository's Godot-specific skills are also separate.
   compatibility renderer.
 - `scripts/gameplay/`: rendering-independent gameplay logic.
 - `scripts/presentation/`: input/physics player controller and tile-area composition.
-- `scenes/player/player.tscn`: character body with foot-anchored 3/4 placeholder,
+- `scenes/player/player.tscn`: character body with a foot-anchored animated
+  3/4-view pixel-art miner,
   ground-level collision shape, and camera.
 - `scenes/world/test_area.tscn`: tiled ground, collidable walls, Y-sorted player
   and tall rock, plus non-blocking ore placeholder.

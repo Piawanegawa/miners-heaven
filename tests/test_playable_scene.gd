@@ -48,14 +48,8 @@ func _run() -> void:
 	else:
 		_expect(false, "player collision footprint is a compact rectangle at the ground anchor")
 	var visual = player.get_node_or_null("Visual")
-	_expect(visual is Polygon2D and visual.visible and visual.polygon.size() >= 3, "player has visible placeholder geometry")
-	if visual is Polygon2D:
-		var visual_top := 0.0
-		var visual_bottom := 0.0
-		for point in visual.polygon:
-			visual_top = minf(visual_top, point.y)
-			visual_bottom = maxf(visual_bottom, point.y)
-		_expect(visual_top <= -16.0 and absf(visual_bottom) < 0.01, "player visual extends upward from the ground anchor")
+	_expect(visual is AnimatedSprite2D and visual.visible, "player has a visible animated pixel-art sprite")
+	await _test_visual_animations(player)
 	var camera = player.get_node_or_null("Camera2D")
 	_expect(camera is Camera2D, "player includes following camera")
 	if camera is Camera2D:
@@ -165,6 +159,55 @@ func _test_wasd_input_movement(player: CharacterBody2D) -> void:
 	_expect(player.velocity == Vector2.ZERO, "opposing WASD and arrow inputs cancel")
 	_press_physical_key(KEY_D, false)
 	_press_physical_key(KEY_LEFT, false)
+	await _ticks(2)
+
+
+func _test_visual_animations(player: CharacterBody2D) -> void:
+	var sprite = player.get_node_or_null("Visual")
+	if not sprite is AnimatedSprite2D:
+		return
+	var frames: SpriteFrames = sprite.sprite_frames
+	_expect(frames != null, "player sprite has animation frames")
+	if frames == null:
+		return
+	for animation_name in [&"walk_up", &"walk_down", &"walk_side"]:
+		_expect(frames.has_animation(animation_name), "%s animation exists" % animation_name)
+		if frames.has_animation(animation_name):
+			_expect(frames.get_frame_count(animation_name) == 4, "%s has four walk frames" % animation_name)
+	_expect(sprite.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "miner sprite uses nearest-neighbor filtering")
+	_expect(is_equal_approx(sprite.position.x, 0.0) and is_equal_approx(sprite.position.y, -16.0), "sprite's bottom-center aligns with the feet origin")
+	_expect(sprite.animation == &"walk_down" and not sprite.is_playing() and sprite.frame == 0, "player starts on the down-facing idle pose")
+
+	player.position = Vector2(96, 96)
+	Input.action_press("ui_right")
+	await _ticks(2)
+	_expect(sprite.animation == &"walk_side" and sprite.is_playing() and not sprite.flip_h, "rightward movement plays the side cycle facing right")
+	_release_input()
+	Input.action_press("ui_left")
+	await _ticks(2)
+	_expect(sprite.animation == &"walk_side" and sprite.is_playing() and sprite.flip_h, "leftward movement mirrors the side cycle")
+	_release_input()
+	Input.action_press("ui_up")
+	await _ticks(2)
+	_expect(sprite.animation == &"walk_up" and sprite.is_playing(), "upward movement plays the up cycle")
+	_release_input()
+	Input.action_press("ui_down")
+	await _ticks(2)
+	_expect(sprite.animation == &"walk_down" and sprite.is_playing(), "downward movement plays the down cycle")
+	Input.action_press("ui_right")
+	await _ticks(2)
+	_expect(sprite.animation == &"walk_down", "equal diagonal movement preserves the previous facing")
+	_release_input()
+	await _ticks(2)
+	_expect(not sprite.is_playing() and sprite.animation == &"walk_down" and sprite.frame == 0, "stopping returns to the last-facing idle pose")
+
+	player.position = Vector2(50, 96)
+	Input.action_press("ui_left")
+	await _ticks(10)
+	_expect(not sprite.is_playing(), "blocked movement does not play a walk cycle")
+	_expect(sprite.animation == &"walk_side" and sprite.flip_h, "blocked movement preserves the last left-facing pose")
+	_expect(player.get_slide_collision_count() > 0, "blocked animation check reached the wall through collision")
+	_release_input()
 	await _ticks(2)
 
 
