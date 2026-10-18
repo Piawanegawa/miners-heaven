@@ -24,7 +24,11 @@ func _run() -> void:
 	var world = packed.instantiate()
 	root.add_child(world)
 	await _ticks(2)
+	var depth_sort = world.get_node_or_null("DepthSort")
+	_expect(depth_sort is Node2D and depth_sort.y_sort_enabled, "world has a shared Y-sorted entity container")
 	var player = world.get_node_or_null("Player")
+	if player == null and depth_sort is Node2D:
+		player = depth_sort.get_node_or_null("Player")
 	var ground = world.get_node_or_null("Ground")
 	_expect(player is CharacterBody2D, "main scene includes a collision-aware player")
 	_expect(ground is TileMapLayer, "world uses native tile-based ground")
@@ -32,19 +36,49 @@ func _run() -> void:
 		world.free()
 		_finish()
 		return
+	_expect(player.get_parent() == depth_sort, "player is sorted with tall world props")
 	_expect(not ground.get_used_cells().is_empty(), "ground contains playable tiles")
 	_expect(ground.tile_set != null and ground.tile_set.get_source_count() > 0, "ground has placeholder tile graphics")
 	var shape = player.get_node_or_null("CollisionShape2D")
 	_expect(shape is CollisionShape2D and shape.shape != null and not shape.disabled, "player has enabled collision shape")
-	var visual = player.get_node_or_null("Placeholder")
+	if shape is CollisionShape2D and shape.shape is RectangleShape2D:
+		var collision_size: Vector2 = shape.shape.size
+		_expect(collision_size.x <= 16.0 and collision_size.y <= 16.0, "player collision footprint is compact")
+		_expect(absf(shape.position.y + collision_size.y * 0.5) < 0.01, "player collision footprint ends at the ground anchor")
+	else:
+		_expect(false, "player collision footprint is a compact rectangle at the ground anchor")
+	var visual = player.get_node_or_null("Visual")
 	_expect(visual is Polygon2D and visual.visible and visual.polygon.size() >= 3, "player has visible placeholder geometry")
+	if visual is Polygon2D:
+		var visual_top := 0.0
+		var visual_bottom := 0.0
+		for point in visual.polygon:
+			visual_top = minf(visual_top, point.y)
+			visual_bottom = maxf(visual_bottom, point.y)
+		_expect(visual_top <= -16.0 and absf(visual_bottom) < 0.01, "player visual extends upward from the ground anchor")
 	var camera = player.get_node_or_null("Camera2D")
 	_expect(camera is Camera2D, "player includes following camera")
 	if camera is Camera2D:
 		_expect(camera.enabled and camera.is_current(), "player camera is active")
 		_expect(not camera.top_level and not camera.position_smoothing_enabled, "camera follows predictably without independent transform or smoothing")
 	_expect(world.get_node_or_null("Walls/Left") is StaticBody2D, "area includes collidable boundary wall")
-	_expect(world.get_node_or_null("Obstacle") is StaticBody2D, "area includes collidable obstacle")
+	var rock = world.get_node_or_null("DepthSort/Rock")
+	_expect(rock is StaticBody2D, "area includes a collidable tall rock")
+	var rock_collision = rock.get_node_or_null("CollisionShape2D") if rock is StaticBody2D else null
+	_expect(rock_collision is CollisionShape2D and rock_collision.shape is RectangleShape2D, "rock has a rectangular base collision footprint")
+	if rock_collision is CollisionShape2D and rock_collision.shape is RectangleShape2D:
+		_expect(rock_collision.shape.size.y <= 16.0 and absf(rock_collision.position.y + rock_collision.shape.size.y * 0.5) < 0.01, "rock collision footprint ends at its ground anchor")
+	var rock_visual = rock.get_node_or_null("Visual") if rock is StaticBody2D else null
+	_expect(rock_visual is Polygon2D and rock_visual.visible, "rock has visible tall placeholder artwork")
+	if rock_visual is Polygon2D:
+		var rock_top := 0.0
+		var rock_bottom := 0.0
+		for point in rock_visual.polygon:
+			rock_top = minf(rock_top, point.y)
+			rock_bottom = maxf(rock_bottom, point.y)
+		_expect(rock_top <= -32.0 and absf(rock_bottom) < 0.01, "rock artwork rises from its ground anchor")
+	var ore = world.get_node_or_null("DepthSort/Ore")
+	_expect(ore is Node2D and not ore is CollisionObject2D, "ore visual is non-blocking")
 	await _test_input_movement(player)
 	await _test_wasd_input_movement(player)
 	await _test_collisions(player)
@@ -151,7 +185,7 @@ func _press_physical_key(keycode: int, pressed: bool) -> void:
 
 
 func _test_collisions(player: CharacterBody2D) -> void:
-	# Fixtures: 32px boundary wall; obstacle spans x=256..320, y=192..256.
+	# Fixtures: 32px boundary wall; rock art is tall, with a base footprint at x=256..320, y=240..256.
 	player.position = Vector2(64, 96)
 	Input.action_press("ui_left")
 	await _ticks(30)
@@ -162,17 +196,18 @@ func _test_collisions(player: CharacterBody2D) -> void:
 	await _ticks(15)
 	_expect(player.position.x >= 39.9 and player.position.y > start_y + 20, "diagonal movement slides along blocked wall")
 	_release_input()
-	player.position = Vector2(224, 224)
+	player.position = Vector2(224, 248)
 	Input.action_press("ui_right")
 	await _ticks(30)
 	_expect(player.position.x <= 248.1 and player.position.x > 240, "player cannot cross obstacle")
 	_expect(player.get_slide_collision_count() > 0, "obstacle blocks using real physics collision")
 	_release_input()
-	player.position = Vector2(224, 160)
+	# Approach the collider corner with the player's ground contact, not its former body center.
+	player.position = Vector2(240, 232)
 	Input.action_press("ui_right")
 	Input.action_press("ui_down")
 	await _ticks(12)
-	_expect(not Rect2(256, 192, 64, 64).has_point(player.position), "diagonal approach does not clip through obstacle corner")
+	_expect(not Rect2(256, 240, 64, 16).has_point(player.position), "diagonal approach does not clip through rock base corner")
 	_expect(player.get_slide_collision_count() > 0, "diagonal corner approach registers collision")
 	_release_input()
 	await _ticks(2)

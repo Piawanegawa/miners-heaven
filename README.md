@@ -1,9 +1,9 @@
 # Miners Heaven
 
 A minimal Godot 4 / GDScript 2D top-down playable foundation: continuous
-eight-direction movement, collision-aware player, following camera, and a
-small tile-based placeholder test area. Gameplay rules are separate from
-scene presentation. No progression or content systems are included.
+eight-direction movement, a 3/4-view placeholder player, ground-level collision,
+a following camera, and a small tile-based mine test area. Gameplay rules are
+separate from scene presentation. No progression or content systems are included.
 
 ## Requirements
 
@@ -47,12 +47,15 @@ or **F5** to run the registered main scene, `scenes/world/test_area.tscn`.
 - Opposing movement keys cancel. Releasing all movement keys stops movement.
 - Diagonal speed matches cardinal speed: **200 pixels/second** by default.
   Tune `movement_speed` on the player/controller to change it.
-- Walls and the central obstacle block movement; an unblocked axis permits sliding.
+- The player scene origin is at the feet. Its placeholder visual extends upward,
+  while its compact collision shape stays at the ground footprint.
+- Walls and the rock's ground-level footprint block movement; the player can overlap its tall artwork outside that footprint.
 - The player's child `Camera2D` follows without smoothing at **2x zoom**.
 
 The area is **18x14 tiles**, each **32x32 pixels** (576x448 overall), with
-32-pixel boundary walls and a 64x64 obstacle. Graphics are embedded/generated
-placeholder colors and shapes, with no external art imports.
+32-pixel boundary walls, a tall rock with a **64x16** ground footprint, and a
+non-colliding ore visual. Graphics are embedded/generated placeholder colors
+and shapes, with no external art imports.
 
 ## Movement core
 
@@ -127,9 +130,9 @@ Each runner exits `0` on success and `1` on a failed check:
 
 - Movement/core: **32 assertions**, covering cardinal/diagonal normalization,
   zero/opposing inputs, consecutive direction changes, and configurable speed.
-- Playable scene: **27 assertions**, exercising real input/physics, tiled
-  ground, player/camera setup, movement, stopping/reversal, walls, sliding,
-  obstacle/corner collision, and actual camera tracking.
+- Playable scene: **51 assertions**, exercising real input/physics, tiled
+  ground, player ground anchor and camera, movement, stopping/reversal, walls,
+  sliding, rock-base/corner collision, and actual camera tracking.
 - Validator: **11 checks** (**12** when the Windows GUI-companion check is available),
   running the wrapper in fresh PowerShell processes against unavailable
   explicit/environment executables, missing/malformed
@@ -191,8 +194,10 @@ Superpowers; the repository's Godot-specific skills are also separate.
   compatibility renderer.
 - `scripts/gameplay/`: rendering-independent gameplay logic.
 - `scripts/presentation/`: input/physics player controller and tile-area composition.
-- `scenes/player/player.tscn`: character body, collision, placeholder, camera.
-- `scenes/world/test_area.tscn`: tiled ground, collidable walls/obstacle, player.
+- `scenes/player/player.tscn`: character body with foot-anchored 3/4 placeholder,
+  ground-level collision shape, and camera.
+- `scenes/world/test_area.tscn`: tiled ground, collidable walls, Y-sorted player
+  and tall rock, plus non-blocking ore placeholder.
 - `scripts/validate_project.ps1`: executable discovery and headless validation.
 - `scripts/build_windows.ps1`: Release or Debug Windows x86_64 export.
 - `tests/`: dependency-free GDScript movement/integration runners and PowerShell

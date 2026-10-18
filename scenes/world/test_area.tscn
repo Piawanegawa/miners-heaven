@@ -28,7 +28,7 @@ size = Vector2(576, 32)
 size = Vector2(32, 384)
 
 [sub_resource type="RectangleShape2D" id="Rectangle_obstacle"]
-size = Vector2(64, 64)
+size = Vector2(64, 16)
 
 [node name="TestArea" type="Node2D"]
 script = ExtResource("2_area")
@@ -88,17 +88,40 @@ shape = SubResource("Rectangle_vertical")
 color = Color(0.38, 0.42, 0.48, 1)
 polygon = PackedVector2Array(-16, -192, 16, -192, 16, 192, -16, 192)
 
-[node name="Obstacle" type="StaticBody2D" parent="."]
-position = Vector2(288, 224)
+[node name="DepthSort" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Rock" type="StaticBody2D" parent="DepthSort"]
+position = Vector2(288, 256)
 collision_layer = 1
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Obstacle"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DepthSort/Rock"]
+position = Vector2(0, -8)
 shape = SubResource("Rectangle_obstacle")
 
-[node name="Placeholder" type="Polygon2D" parent="Obstacle"]
-color = Color(0.5, 0.34, 0.25, 1)
-polygon = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+[node name="Visual" type="Polygon2D" parent="DepthSort/Rock"]
+color = Color(0.2, 0.24, 0.34, 1)
+polygon = PackedVector2Array(-32, -12, -24, -40, 8, -44, 28, -28, 32, -12, 32, 0, -32, 0)
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
+[node name="TopFace" type="Polygon2D" parent="DepthSort/Rock/Visual"]
+color = Color(0.38, 0.45, 0.62, 1)
+polygon = PackedVector2Array(-24, -40, 8, -44, 28, -28, 0, -20)
+
+[node name="FrontFace" type="Polygon2D" parent="DepthSort/Rock/Visual"]
+color = Color(0.12, 0.16, 0.25, 1)
+polygon = PackedVector2Array(-32, -12, 0, -20, 28, -28, 32, -12, 32, 0, -32, 0)
+
+[node name="Ore" type="Node2D" parent="DepthSort"]
+position = Vector2(392, 256)
+
+[node name="Visual" type="Polygon2D" parent="DepthSort/Ore"]
+color = Color(0.04, 0.62, 0.72, 1)
+polygon = PackedVector2Array(-10, 0, -8, -12, -3, -18, 2, -10, 6, -16, 10, -12, 10, 0)
+
+[node name="Highlight" type="Polygon2D" parent="DepthSort/Ore"]
+color = Color(0.4, 0.88, 0.86, 1)
+polygon = PackedVector2Array(-6, -11, -3, -16, 0, -10)
+
+[node name="Player" parent="DepthSort" instance=ExtResource("1_player")]
 position = Vector2(96, 96)
